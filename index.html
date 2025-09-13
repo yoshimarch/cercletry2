@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>まるのひろさをさんかくのかたちでまなぼう！</title>
+  <style>
+    /* 基本スタイル */
+    body {
+      font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+    }
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 100vh;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    /* ヘッダー */
+    .header {
+      background-color: #4287f5;
+      color: white;
+      padding: 15px;
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 0;
+    }
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background-color: white;
+      color: #4287f5;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn:hover { background-color: #e6f0ff; }
+    .select {
+      background-color: white;
+      color: #4287f5;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    /* メインコンテンツ */
+    .main-content {
+      display: flex;
+      flex: 1;
+      padding: 16px;
+      overflow: hidden;
+    }
+    .mobile-layout { flex-direction: column; }
+    .desktop-layout { flex-direction: row; }
+    /* キャンバスエリア */
+    .canvas-area { position: relative; margin-bottom: 16px; }
+    .desktop-layout .canvas-area { width: 60%; padding-right: 16px; }
+    .mobile-layout .canvas-area { width: 100%; height: 280px; }
+    .canvas-container {
+      height: 100%;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas { display: block; }
+    .slider-controls {
+      position: absolute;
+      bottom: 32px;
+      left: 32px;
+      right: 32px;
+      background-color: white;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .slider-group { margin-bottom: 8px; }
+    .slider-group:last-child { margin-bottom: 0; }
+    .slider-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 4px;
+    }
+    .slider { width: 100%; }
+    .congrats {
+      position: absolute; inset: 0; display: flex;
+      align-items: center; justify-content: center;
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+    .congrats-content {
+      background-color: white; padding: 24px; border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); text-align: center;
+      transform: scale(1.1); animation: bounce 1s infinite alternate;
+    }
+    @keyframes bounce {
+      from { transform: scale(1.1) translateY(0); }
+      to   { transform: scale(1.1) translateY(-10px); }
+    }
+    .congrats-title { font-size: 1.875rem; font-weight: bold; color: #22c55e; margin-bottom: 8px; }
+    .congrats-text { font-size: 1.25rem; }
+    /* 説明エリア */
+    .description-area {
+      background-color: #e6f0ff; border-radius: 8px; padding: 16px; display: flex; flex-direction: column;
+    }
+    .desktop-layout .description-area { width: 40%; }
+    .mobile-layout .description-area { width: 100%; flex: 1; }
+    .step-description { flex: 1; margin-bottom: 16px; overflow: auto; }
+    .step-title { font-size: 1.125rem; font-weight: bold; margin-bottom: 8px; }
+    .challenge-box { margin-top: 16px; padding: 12px; background-color: white; border-radius: 8px; }
+    .challenge-title { font-weight: bold; color: #4287f5; margin-bottom: 8px; }
+    .challenge-input { display: flex; margin-top: 8px; align-items: center; }
+    .number-input { border: 1px solid #ddd; border-radius: 4px; padding: 4px 8px; width: 80px; text-align: center; }
+    .check-btn {
+      margin-left: 8px; background-color: #4287f5; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer;
+    }
+    .check-btn:hover { background-color: #3b78de; }
+    .hint-btn {
+      margin-left: 8px; background-color: #e2e8f0; color: #4a5568; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer;
+    }
+    .hint-btn:hover { background-color: #cbd5e0; }
+    .answer-result { margin-top: 8px; }
+    .correct { color: #22c55e; }
+    .incorrect { color: #ef4444; }
+    .hint-box { margin-top: 8px; padding: 8px; background-color: #fef9c3; border-radius: 4px; font-size: 0.875rem; }
+    /* ナビゲーションボタン */
+    .navigation { display: flex; justify-content: space-between; align-items: center; }
+    .nav-btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; }
+    .nav-btn-primary { background-color: #4287f5; color: white; }
+    .nav-btn-primary:hover { background-color: #3b78de; }
+    .nav-btn-disabled { background-color: #e2e8f0; color: #a0aec0; cursor: not-allowed; }
+    .step-indicator { margin: 0 8px; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- ヘッダー -->
+    <div class="header">
+      <div class="header-content">
+        <h1 class="title">まるのひろさをさんかくのかたちでまなぼう！</h1>
+        <div class="controls">
+          <button id="toggle-type-btn" class="btn">まるのなかのかたち</button>
+          <button id="toggle-mode-btn" class="btn">がくしゅう</button>
+          <select id="word-level" class="select">
+            <option value="1">ことば：1ねんせい</option>
+            <option value="2">ことば：3ねんせい</option>
+            <option value="3">ことば：6ねんせい</option>
+            <option value="4">ことば：中学生</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <div id="main-content" class="main-content desktop-layout">
+      <!-- ここにJavaScriptでコンテンツを生成 -->
+    </div>
+  </div>
+
+  <script>
+    // ----------------------
+    // グローバル変数と設定
+    // ----------------------
+
+    const colors = {
+      primary: "#4287f5",
+      secondary: "#f54242",
+      success: "#42f54e",
+      background: "#f9f9f9",
+      accent1: "#f5a442",
+      accent2: "#9e42f5",
+      textPrimary: "#333333",
+      textSecondary: "#666666",
+    };
+
+    let state = {
+      radius: 56,
+      vertices: 6,
+      currentStep: 1,
+      wordLevel: 1,
+      mode: "learn", // "learn" または "challenge"
+      userAnswer: "",
+      showHint: false,
+      showCongrats: false,
+      calculationType: "inscribed", // "inscribed" または "circumscribed"
+      isMobile: window.innerWidth < 768,
+      displayedValues: {
+        base: 0,
+        height: 0,
+        triangleArea: 0,
+        totalArea: 0
+      }
+    };
+
+    let canvas, ctx, mainContent, canvasContainer;
+
+    const wordMaps = {
+      inscribedPolygon: { 1: "まるのなかのかたち", 2: "円のなかの形", 3: "内接多角形", 4: "内接多角形" },
+      circumscribedPolygon: { 1: "まるのそとのかたち", 2: "円のそとの形", 3: "外接多角形", 4: "外接多角形" },
+      area: { 1: "ひろさ", 2: "ひろさ", 3: "面積", 4: "面積" },
+      radius: { 1: "まるのはんぶんのながさ", 2: "円の半分の長さ", 3: "半径", 4: "半径" },
+      triangle: { 1: "さんかくのかたち", 2: "三角形", 3: "三角形", 4: "三角形" },
+      base: { 1: "したへん", 2: "底辺", 3: "底辺", 4: "底辺" },
+      height: { 1: "たかさ", 2: "高さ", 3: "高さ", 4: "高さ" },
+      calculate: { 1: "けいさんする", 2: "計算する", 3: "計算する", 4: "計算する" },
+      angle: { 1: "かど", 2: "角", 3: "角度", 4: "角度" },
+      next: { 1: "つぎへ", 2: "次へ", 3: "次へ", 4: "次へ" },
+      back: { 1: "もどる", 2: "戻る", 3: "戻る", 4: "戻る" },
+      challenge: { 1: "ちょうせん", 2: "挑戦", 3: "チャレンジ", 4: "チャレンジ" },
+      hint: { 1: "ヒント", 2: "ヒント", 3: "ヒント", 4: "ヒント" },
+      vertices: { 1: "かどのかず", 2: "角の数", 3: "頂点の数", 4: "頂点の数" },
+      formula: { 1: "けいさんのしかた", 2: "計算の方法", 3: "計算式", 4: "公式" },
+      step: { 1: "すてっぷ", 2: "ステップ", 3: "手順", 4: "ステップ" },
+    };
+
+    function getWord(key) {
+      const wordMap = wordMaps[key] || {};
+      if (!wordMap[state.wordLevel]) return wordMap[4] || wordMap[Object.keys(wordMap)[0]];
+      return wordMap[state.wordLevel];
+    }
+
+    function calculateTriangleArea() {
+      const angleRad = (2 * Math.PI) / state.vertices;
+      if (state.calculationType === "inscribed") {
+        const base = 2 * state.radius * Math.sin(angleRad / 2);
+        const height = state.radius * Math.cos(angleRad / 2);
+        const triangleArea = (base * height) / 2;
+        return {
+          base,
+          height,
+          triangleArea,
+          totalArea: triangleArea * state.vertices,
+          exactCircleArea: Math.PI * state.radius * state.radius,
+        };
+      } else {
+        const segmentAngle = Math.PI / state.vertices;
+        const base = 2 * state.radius * Math.tan(segmentAngle);
+        const height = state.radius;
+        const triangleArea = (base * height) / 2;
+        return {
+          base,
+          height,
+          triangleArea,
+          totalArea: triangleArea * state.vertices,
+          exactCircleArea: Math.PI * state.radius * state.radius,
+        };
+      }
+    }
+
+    function getStepDescription() {
+      const calcResult = state.displayedValues;
+      switch (state.currentStep) {
+        case 1:
+          return `
+            <h3 class="step-title">${getWord("step")} 1: ${state.calculationType === "inscribed" ? getWord("inscribedPolygon") : getWord("circumscribedPolygon")}をつくる</h3>
+            <p>
+              まるをみてみよう！${state.calculationType === "inscribed" ? "まるのなかに" : "まるのそとに"}
+              ${getWord("vertices")}が${state.vertices}この${getWord("triangle")}ができるよ。
+            </p>
+            <p>スライダーで${getWord("radius")}や${getWord("vertices")}をかえてみよう！</p>
+          `;
+        case 2:
+          return `
+            <h3 class="step-title">${getWord("step")} 2: ひとつの${getWord("triangle")}をみる</h3>
+            <p>オレンジいろの${getWord("triangle")}をみてみよう。これがひとつの${getWord("triangle")}だよ。</p>
+          `;
+        case 3:
+          return `
+            <h3 class="step-title">${getWord("step")} 3: ${getWord("base")}と${getWord("height")}をはかる</h3>
+            <p>${getWord("triangle")}の${getWord("area")}は「${getWord("base")}×${getWord("height")}÷2」でもとめられるよ。</p>
+            <p>むらさきのせんが${getWord("base")}だよ：${calcResult.base.toFixed(1)}</p>
+            <p>みどりのせんが${getWord("height")}だよ：${calcResult.height.toFixed(1)}</p>
+          `;
+        case 4:
+          return `
+            <h3 class="step-title">${getWord("step")} 4: ${getWord("triangle")}の${getWord("area")}をけいさん</h3>
+            <p>${getWord("formula")}：${getWord("base")} × ${getWord("height")} ÷ 2</p>
+            <p>${calcResult.base.toFixed(1)} × ${calcResult.height.toFixed(1)} ÷ 2 = ${calcResult.triangleArea.toFixed(1)}</p>
+            <p>ひとつの${getWord("triangle")}の${getWord("area")}は${calcResult.triangleArea.toFixed(1)}だよ！</p>
+          `;
+        case 5:
+          return `
+            <h3 class="step-title">${getWord("step")} 5: ぜんぶの${getWord("area")}をけいさん</h3>
+            <p>${getWord("triangle")}が${state.vertices}こあるから、ぜんぶの${getWord("area")}は：</p>
+            <p>${calcResult.triangleArea.toFixed(1)} × ${state.vertices} = ${calcResult.totalArea.toFixed(1)}</p>
+            <p>${state.calculationType === "inscribed" ? getWord("inscribedPolygon") : getWord("circumscribedPolygon")}の${getWord("area")}は${calcResult.totalArea.toFixed(1)}！</p>
+            <p>ほんとうのまるの${getWord("area")}は${calcResult.exactCircleArea.toFixed(1)}だよ。${state.calculationType === "inscribed" ? "ちいさい" : "おおきい"}ね。</p>
+            <p>${getWord("vertices")}をおおくすると、まるの${getWord("area")}にちかづくよ！</p>
+          `;
+        default:
+          return "";
+      }
+    }
+
+    function getChallengeContent() {
+      const calcResult = state.displayedValues;
+      if (state.mode !== "challenge" || state.currentStep !== 5) return "";
+
+      let resultHtml = "";
+      if (state.userAnswer) {
+        const isCorrect = checkAnswer();
+        resultHtml = `
+          <div class="answer-result ${isCorrect ? 'correct' : 'incorrect'}">
+            ${isCorrect ? "せいかい！" : "ざんねん...もういちどやってみよう！"}
+          </div>
+        `;
+      }
+
+      let hintHtml = "";
+      if (state.showHint) {
+        hintHtml = `
+          <div class="hint-box">
+            <p>ヒント：ひとつの${getWord("triangle")}の${getWord("area")}は${calcResult.triangleArea.toFixed(1)}で、${getWord("triangle")}は${state.vertices}こあるよ！</p>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="challenge-box">
+          <h3 class="challenge-title">${getWord("challenge")}!</h3>
+          <p>${state.calculationType === "inscribed" ? getWord("inscribedPolygon") : getWord("circumscribedPolygon")}の${getWord("area")}はいくつ？</p>
+          <div class="challenge-input">
+            <input type="number" id="user-answer" class="number-input" value="${state.userAnswer}">
+            <button id="check-answer-btn" class="check-btn">こたえあわせ</button>
+            <button id="show-hint-btn" class="hint-btn">${getWord("hint")}</button>
+          </div>
+          ${resultHtml}
+          ${hintHtml}
+        </div>
+      `;
+    }
+
+    // 円＋多角形の輪郭を描画
+    function drawWithEmphasis() {
+      if (!canvas || !ctx) return null;
+
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      const scaleFactor = state.isMobile ? 0.4 : 0.35;
+      const effectiveRadius = Math.min(width, height) * scaleFactor * (state.radius / 100);
+
+      ctx.clearRect(0, 0, width, height);
+
+      // 円
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, effectiveRadius, 0, 2 * Math.PI);
+      ctx.strokeStyle = colors.primary;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const angleRad = (2 * Math.PI) / state.vertices;
+      const segmentAngle = Math.PI / state.vertices;
+
+      // 多角形
+      ctx.beginPath();
+      if (state.calculationType === "inscribed") {
+        for (let i = 0; i < state.vertices; i++) {
+          const a = i * angleRad;
+          const x = centerX + effectiveRadius * Math.cos(a);
+          const y = centerY + effectiveRadius * Math.sin(a);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+      } else {
+        // 外接：頂点半径 = effectiveRadius / cos(segmentAngle)
+        const Rv = effectiveRadius / Math.cos(segmentAngle);
+        for (let i = 0; i < state.vertices; i++) {
+          const a = 2 * i * segmentAngle;
+          const x = centerX + Rv * Math.cos(a);
+          const y = centerY + Rv * Math.sin(a);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+      }
+      ctx.closePath();
+      ctx.strokeStyle = colors.secondary;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      return { centerX, centerY, effectiveRadius, angleRad, segmentAngle };
+    }
+
+    function drawCanvas() {
+      const calcResult = calculateTriangleArea();
+      state.displayedValues = {
+        base: calcResult.base,
+        height: calcResult.height,
+        triangleArea: calcResult.triangleArea,
+        totalArea: calcResult.totalArea
+      };
+
+      const g = drawWithEmphasis();
+      if (!g) return;
+      const { centerX, centerY, effectiveRadius, angleRad, segmentAngle } = g;
+
+      // ステップ2〜4：最初の三角形をハイライト
+      if (state.currentStep >= 2 && state.currentStep <= 4) {
+        ctx.beginPath();
+        if (state.calculationType === "inscribed") {
+          const a1 = 0;
+          const x1 = centerX + effectiveRadius * Math.cos(a1);
+          const y1 = centerY + effectiveRadius * Math.sin(a1);
+          const a2 = angleRad;
+          const x2 = centerX + effectiveRadius * Math.cos(a2);
+          const y2 = centerY + effectiveRadius * Math.sin(a2);
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.closePath();
+        } else {
+          const Rv = effectiveRadius / Math.cos(segmentAngle);
+          const a1 = 0;
+          const x1 = centerX + Rv * Math.cos(a1);
+          const y1 = centerY + Rv * Math.sin(a1);
+          const a2 = 2 * segmentAngle;
+          const x2 = centerX + Rv * Math.cos(a2);
+          const y2 = centerY + Rv * Math.sin(a2);
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.closePath();
+        }
+        ctx.fillStyle = `${colors.accent1}80`;
+        ctx.fill();
+
+        // ステップ3：底辺と高さを強調表示
+        if (state.currentStep === 3) {
+          const fontSize = state.isMobile ? 12 : 16;
+          ctx.font = `${fontSize}px Arial`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+
+          if (state.calculationType === "inscribed") {
+            // 頂点座標
+            const a1 = 0;
+            const x1 = centerX + effectiveRadius * Math.cos(a1);
+            const y1 = centerY + effectiveRadius * Math.sin(a1);
+            const a2 = angleRad;
+            const x2 = centerX + effectiveRadius * Math.cos(a2);
+            const y2 = centerY + effectiveRadius * Math.sin(a2);
+
+            // 底辺（弦）
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = colors.accent2;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // 底辺ラベル
+            const midBX = (x1 + x2) / 2;
+            const midBY = (y1 + y2) / 2;
+            ctx.fillStyle = colors.accent2;
+            ctx.fillText(`${getWord("base")}: ${calcResult.base.toFixed(1)}`, midBX, midBY + 18);
+
+            // ★ 高さ：中心 → 底辺の「中点」へ垂線（見た目も長さも一致）
+            const midX = midBX;
+            const midY = midBY;
+
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(midX, midY);
+            ctx.strokeStyle = colors.success;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // 高さラベル（中心付近に表示）
+            ctx.fillStyle = colors.success;
+            ctx.fillText(`${getWord("height")}: ${calcResult.height.toFixed(1)}`, centerX + 10, centerY + 20);
+
+          } else {
+            // 外接：底辺と高さ（中心→底辺への垂線）
+            const Rv = effectiveRadius / Math.cos(segmentAngle);
+            const a1 = 0;
+            const x1 = centerX + Rv * Math.cos(a1);
+            const y1 = centerY + Rv * Math.sin(a1);
+            const a2 = 2 * segmentAngle;
+            const x2 = centerX + Rv * Math.cos(a2);
+            const y2 = centerY + Rv * Math.sin(a2);
+
+            // 底辺
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = colors.accent2;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // 底辺ラベル
+            const midBX = (x1 + x2) / 2;
+            const midBY = (y1 + y2) / 2;
+            ctx.fillStyle = colors.accent2;
+            ctx.fillText(`${getWord("base")}: ${calcResult.base.toFixed(1)}`, midBX, midBY + 18);
+
+            // 中心→底辺への垂線（交点計算）
+            const m = (y2 - y1) / (x2 - x1);
+            const mPerp = -1 / m;
+            let ix, iy;
+
+            if (isFinite(m) && isFinite(mPerp)) {
+              ix = ((y1 - centerY) - m * x1 + mPerp * centerX) / (mPerp - m);
+              iy = m * (ix - x1) + y1;
+            } else if (!isFinite(m)) { // 底辺が垂直
+              ix = x1;
+              iy = mPerp * (ix - centerX) + centerY;
+            } else { // 底辺が水平
+              iy = y1;
+              ix = (iy - centerY) / mPerp + centerX;
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(ix, iy);
+            ctx.strokeStyle = colors.success;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.fillStyle = colors.success;
+            ctx.fillText(`${getWord("height")}: ${calcResult.height.toFixed(1)}`, centerX + 10, centerY + 20);
+          }
+        }
+      }
+    }
+
+    function handleNextStep() {
+      state.currentStep = state.currentStep < 5 ? state.currentStep + 1 : 1;
+      state.showHint = false;
+      state.userAnswer = "";
+      updateUI();
+    }
+    function handlePrevStep() {
+      if (state.currentStep > 1) state.currentStep--;
+      state.showHint = false;
+      state.userAnswer = "";
+      updateUI();
+    }
+    function toggleMode() {
+      state.mode = state.mode === "learn" ? "challenge" : "learn";
+      state.currentStep = 1;
+      updateUI();
+      const modeBtn = document.getElementById("toggle-mode-btn");
+      if (modeBtn) modeBtn.textContent = state.mode === "learn" ? "がくしゅう" : getWord("challenge");
+    }
+    function toggleCalculationType() {
+      state.calculationType = state.calculationType === "inscribed" ? "circumscribed" : "inscribed";
+      state.currentStep = 1;
+      updateUI();
+      const typeBtn = document.getElementById("toggle-type-btn");
+      if (typeBtn) typeBtn.textContent = state.calculationType === "inscribed" ? getWord("inscribedPolygon") : getWord("circumscribedPolygon");
+    }
+    function checkAnswer() {
+      const correctAnswer = state.displayedValues.totalArea.toFixed(0);
+      return state.userAnswer === correctAnswer;
+    }
+    function handleShowHint() {
+      state.showHint = true;
+      updateUI();
+    }
+
+    function updateCanvasSize() {
+      if (!canvas || !canvasContainer) return;
+      const container = canvasContainer;
+      const size = Math.min(container.clientWidth, container.clientHeight);
+      let width, height;
+      if (state.isMobile) {
+        width = container.clientWidth;
+        height = Math.min(size * 1.2, container.clientHeight);
+      } else {
+        width = size;
+        height = size;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      drawCanvas();
+    }
+
+    function updateLayout() {
+      state.isMobile = window.innerWidth < 768;
+      if (mainContent) mainContent.className = `main-content ${state.isMobile ? 'mobile-layout' : 'desktop-layout'}`;
+      createUI();
+      updateCanvasSize();
+    }
+
+    function updateUI() {
+      const calcResult = calculateTriangleArea();
+      state.displayedValues = {
+        base: calcResult.base,
+        height: calcResult.height,
+        triangleArea: calcResult.triangleArea,
+        totalArea: calcResult.totalArea
+      };
+
+      const labels = document.querySelectorAll(".slider-label");
+      if (labels[0]) labels[0].textContent = `${getWord("radius")}: ${state.radius}`;
+      if (labels[1]) labels[1].textContent = `${getWord("vertices")}: ${state.vertices}`;
+
+      const stepDescriptionElement = document.getElementById("step-description");
+      if (stepDescriptionElement) stepDescriptionElement.innerHTML = getStepDescription();
+
+      const challengeContentElement = document.getElementById("challenge-content");
+      if (challengeContentElement) {
+        challengeContentElement.innerHTML = getChallengeContent();
+
+        const checkAnswerBtn = document.getElementById("check-answer-btn");
+        if (checkAnswerBtn) {
+          checkAnswerBtn.addEventListener("click", function () {
+            const answerInput = document.getElementById("user-answer");
+            if (answerInput) {
+              state.userAnswer = answerInput.value;
+              if (state.currentStep === 5 && state.mode === "challenge" && state.userAnswer) {
+                const correctAnswer = state.displayedValues.totalArea.toFixed(0);
+                if (state.userAnswer === correctAnswer) {
+                  state.showCongrats = true;
+                  setTimeout(function () {
+                    state.showCongrats = false;
+                    updateUI();
+                  }, 3000);
+                }
+              }
+              updateUI();
+            }
+          });
+        }
+        const showHintBtn = document.getElementById("show-hint-btn");
+        if (showHintBtn) showHintBtn.addEventListener("click", handleShowHint);
+
+        const userAnswerInput = document.getElementById("user-answer");
+        if (userAnswerInput) userAnswerInput.addEventListener("input", function () { state.userAnswer = this.value; });
+      }
+
+      const congratsElement = document.getElementById("congrats");
+      if (congratsElement) congratsElement.style.display = state.showCongrats ? "flex" : "none";
+
+      const prevBtn = document.getElementById("prev-btn");
+      if (prevBtn) {
+        if (state.currentStep === 1) {
+          prevBtn.disabled = true;
+          prevBtn.className = "nav-btn nav-btn-disabled";
+        } else {
+          prevBtn.disabled = false;
+          prevBtn.className = "nav-btn nav-btn-primary";
+        }
+      }
+
+      const nextBtn = document.getElementById("next-btn");
+      if (nextBtn) nextBtn.textContent = state.currentStep === 5 ? "さいしょにもどる" : getWord("next");
+
+      const stepIndicator = document.getElementById("step-indicator");
+      if (stepIndicator) stepIndicator.textContent = `${state.currentStep} / 5`;
+
+      drawCanvas();
+    }
+
+    function createUI() {
+      if (!mainContent) return;
+      mainContent.innerHTML = "";
+
+      const canvasAreaHTML = `
+        <div class="canvas-area">
+          <div id="canvas-container" class="canvas-container">
+            <canvas id="circle-canvas"></canvas>
+          </div>
+          <div class="slider-controls">
+            <div class="slider-group">
+              <label class="slider-label">${getWord("radius")}: ${state.radius}</label>
+              <input type="range" id="radius-slider" class="slider" min="30" max="100" value="${state.radius}">
+            </div>
+            <div class="slider-group">
+              <label class="slider-label">${getWord("vertices")}: ${state.vertices}</label>
+              <input type="range" id="vertices-slider" class="slider" min="3" max="12" value="${state.vertices}">
+            </div>
+          </div>
+          <div id="congrats" class="congrats" style="display: none;">
+            <div class="congrats-content">
+              <h2 class="congrats-title">せいかい！</h2>
+              <p class="congrats-text">とってもよくできました！</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const descriptionAreaHTML = `
+        <div class="description-area">
+          <div id="step-description" class="step-description">${getStepDescription()}</div>
+          <div id="challenge-content">${getChallengeContent()}</div>
+          <div class="navigation">
+            <button id="prev-btn" class="nav-btn ${state.currentStep === 1 ? 'nav-btn-disabled' : 'nav-btn-primary'}" ${state.currentStep === 1 ? 'disabled' : ''}>${getWord("back")}</button>
+            <div id="step-indicator" class="step-indicator">${state.currentStep} / 5</div>
+            <button id="next-btn" class="nav-btn nav-btn-primary">${state.currentStep === 5 ? "さいしょにもどる" : getWord("next")}</button>
+          </div>
+        </div>
+      `;
+
+      mainContent.innerHTML = canvasAreaHTML + descriptionAreaHTML;
+
+      canvas = document.getElementById("circle-canvas");
+      ctx = canvas.getContext("2d");
+      canvasContainer = document.getElementById("canvas-container");
+
+      const radiusSlider = document.getElementById("radius-slider");
+      if (radiusSlider) radiusSlider.addEventListener("input", function () { state.radius = parseInt(this.value); updateUI(); });
+
+      const verticesSlider = document.getElementById("vertices-slider");
+      if (verticesSlider) verticesSlider.addEventListener("input", function () { state.vertices = parseInt(this.value); updateUI(); });
+
+      const prevBtn = document.getElementById("prev-btn");
+      if (prevBtn) prevBtn.addEventListener("click", handlePrevStep);
+
+      const nextBtn = document.getElementById("next-btn");
+      if (nextBtn) nextBtn.addEventListener("click", handleNextStep);
+
+      updateUI();
+    }
+
+    function init() {
+      mainContent = document.getElementById("main-content");
+
+      const modeBtn = document.getElementById("toggle-mode-btn");
+      if (modeBtn) modeBtn.addEventListener("click", toggleMode);
+
+      const typeBtn = document.getElementById("toggle-type-btn");
+      if (typeBtn) typeBtn.addEventListener("click", toggleCalculationType);
+
+      const wordLevelSelect = document.getElementById("word-level");
+      if (wordLevelSelect) wordLevelSelect.addEventListener("change", function () { state.wordLevel = parseInt(this.value); updateUI(); });
+
+      updateLayout();
+      window.addEventListener("resize", updateLayout);
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
