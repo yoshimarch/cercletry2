@@ -11,13 +11,14 @@
       margin: 0;
       padding: 0;
       background-color: #f0f0f0;
+      overflow-x: hidden;
     }
     .app-container {
       display: flex;
       flex-direction: column;
       max-width: 1200px;
       margin: 0 auto;
-      height: 100vh;
+      min-height: 100vh;
       background-color: white;
       border-radius: 8px;
       overflow: hidden;
@@ -34,6 +35,7 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
+      gap: 10px;
     }
     .title {
       font-size: 1.5rem;
@@ -55,6 +57,7 @@
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.2s;
+      white-space: nowrap;
     }
     .btn:hover { background-color: #e6f0ff; }
     .select {
@@ -77,26 +80,33 @@
     .mobile-layout { flex-direction: column; }
     .desktop-layout { flex-direction: row; }
     /* キャンバスエリア */
-    .canvas-area { position: relative; margin-bottom: 16px; }
-    .desktop-layout .canvas-area { width: 60%; padding-right: 16px; }
-    .mobile-layout .canvas-area { width: 100%; height: 280px; }
+    .canvas-area { 
+      position: relative; 
+      margin-bottom: 16px; 
+    }
+    .desktop-layout .canvas-area { 
+      width: 60%; 
+      padding-right: 16px; 
+    }
+    .mobile-layout .canvas-area { 
+      width: 100%; 
+    }
     .canvas-container {
-      height: 100%;
+      height: 250px;
       border: 1px solid #ddd;
       border-radius: 8px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      margin-bottom: 90px; /* スライダー用の余白を確保 */
     }
     canvas { display: block; }
     .slider-controls {
-      position: absolute;
-      bottom: 32px;
-      left: 32px;
-      right: 32px;
+      position: relative;
       background-color: white;
       padding: 12px;
+      margin-top: 10px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
@@ -111,14 +121,22 @@
     }
     .slider { width: 100%; }
     .congrats {
-      position: absolute; inset: 0; display: flex;
-      align-items: center; justify-content: center;
+      position: absolute; 
+      inset: 0; 
+      display: flex;
+      align-items: center; 
+      justify-content: center;
       background-color: rgba(255, 255, 255, 0.8);
+      z-index: 10;
     }
     .congrats-content {
-      background-color: white; padding: 24px; border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); text-align: center;
-      transform: scale(1.1); animation: bounce 1s infinite alternate;
+      background-color: white; 
+      padding: 24px; 
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+      text-align: center;
+      transform: scale(1.1); 
+      animation: bounce 1s infinite alternate;
     }
     @keyframes bounce {
       from { transform: scale(1.1) translateY(0); }
@@ -128,35 +146,138 @@
     .congrats-text { font-size: 1.25rem; }
     /* 説明エリア */
     .description-area {
-      background-color: #e6f0ff; border-radius: 8px; padding: 16px; display: flex; flex-direction: column;
+      background-color: #e6f0ff; 
+      border-radius: 8px; 
+      padding: 16px; 
+      display: flex; 
+      flex-direction: column;
     }
     .desktop-layout .description-area { width: 40%; }
     .mobile-layout .description-area { width: 100%; flex: 1; }
-    .step-description { flex: 1; margin-bottom: 16px; overflow: auto; }
+    .step-description { 
+      flex: 1; 
+      margin-bottom: 16px; 
+      overflow: auto; 
+    }
     .step-title { font-size: 1.125rem; font-weight: bold; margin-bottom: 8px; }
-    .challenge-box { margin-top: 16px; padding: 12px; background-color: white; border-radius: 8px; }
+    .challenge-box { 
+      margin-top: 16px; 
+      padding: 12px; 
+      background-color: white; 
+      border-radius: 8px; 
+    }
     .challenge-title { font-weight: bold; color: #4287f5; margin-bottom: 8px; }
-    .challenge-input { display: flex; margin-top: 8px; align-items: center; }
-    .number-input { border: 1px solid #ddd; border-radius: 4px; padding: 4px 8px; width: 80px; text-align: center; }
+    .challenge-input { 
+      display: flex; 
+      margin-top: 8px; 
+      align-items: center; 
+      flex-wrap: wrap; 
+      gap: 8px; 
+    }
+    .number-input { 
+      border: 1px solid #ddd; 
+      border-radius: 4px; 
+      padding: 4px 8px; 
+      width: 80px; 
+      text-align: center; 
+    }
     .check-btn {
-      margin-left: 8px; background-color: #4287f5; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer;
+      background-color: #4287f5; 
+      color: white; 
+      border: none; 
+      padding: 8px 12px; 
+      border-radius: 4px; 
+      cursor: pointer;
     }
     .check-btn:hover { background-color: #3b78de; }
     .hint-btn {
-      margin-left: 8px; background-color: #e2e8f0; color: #4a5568; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer;
+      background-color: #e2e8f0; 
+      color: #4a5568; 
+      border: none; 
+      padding: 8px 12px; 
+      border-radius: 4px; 
+      cursor: pointer;
     }
     .hint-btn:hover { background-color: #cbd5e0; }
     .answer-result { margin-top: 8px; }
     .correct { color: #22c55e; }
     .incorrect { color: #ef4444; }
-    .hint-box { margin-top: 8px; padding: 8px; background-color: #fef9c3; border-radius: 4px; font-size: 0.875rem; }
+    .hint-box { 
+      margin-top: 8px; 
+      padding: 8px; 
+      background-color: #fef9c3; 
+      border-radius: 4px; 
+      font-size: 0.875rem; 
+    }
     /* ナビゲーションボタン */
-    .navigation { display: flex; justify-content: space-between; align-items: center; }
-    .nav-btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; }
+    .navigation { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .nav-btn { 
+      padding: 10px 16px; 
+      border-radius: 8px; 
+      border: none; 
+      cursor: pointer; 
+      min-width: 80px;
+      text-align: center;
+    }
     .nav-btn-primary { background-color: #4287f5; color: white; }
     .nav-btn-primary:hover { background-color: #3b78de; }
     .nav-btn-disabled { background-color: #e2e8f0; color: #a0aec0; cursor: not-allowed; }
-    .step-indicator { margin: 0 8px; }
+    .step-indicator { 
+      margin: 0 8px; 
+      font-weight: bold; 
+    }
+
+    /* スマートフォン向け追加スタイル */
+    @media (max-width: 767px) {
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+      }
+      .controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .canvas-container {
+        height: 250px; /* 固定高さを設定 */
+        margin-bottom: 0; /* スライダーが別の位置になるので余白不要 */
+      }
+      .slider-controls {
+        margin-top: 15px;
+        padding: 10px;
+      }
+      .challenge-input {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .number-input {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      .check-btn, .hint-btn {
+        width: 100%;
+        padding: 10px;
+        margin-left: 0;
+      }
+      .navigation {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+      }
+      .nav-btn {
+        flex: 1;
+        min-width: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -366,7 +487,8 @@
       const centerX = width / 2;
       const centerY = height / 2;
 
-      const scaleFactor = state.isMobile ? 0.4 : 0.35;
+      // モバイルではより小さいスケールファクターを使用
+      const scaleFactor = state.isMobile ? 0.3 : 0.35;
       const effectiveRadius = Math.min(width, height) * scaleFactor * (state.radius / 100);
 
       ctx.clearRect(0, 0, width, height);
@@ -453,7 +575,8 @@
 
         // ステップ3：底辺と高さを強調表示
         if (state.currentStep === 3) {
-          const fontSize = state.isMobile ? 12 : 16;
+          // スマホではフォントサイズを調整
+          const fontSize = state.isMobile ? 14 : 16;
           ctx.font = `${fontSize}px Arial`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -479,9 +602,9 @@
             const midBX = (x1 + x2) / 2;
             const midBY = (y1 + y2) / 2;
             ctx.fillStyle = colors.accent2;
-            ctx.fillText(`${getWord("base")}: ${calcResult.base.toFixed(1)}`, midBX, midBY + 18);
+            ctx.fillText(`${getWord("base")}: ${calcResult.base.toFixed(1)}`, midBX, midBY + (state.isMobile ? 15 : 18));
 
-            // ★ 高さ：中心 → 底辺の「中点」へ垂線（見た目も長さも一致）
+            // 高さ：中心 → 底辺の「中点」へ垂線
             const midX = midBX;
             const midY = midBY;
 
@@ -494,7 +617,7 @@
 
             // 高さラベル（中心付近に表示）
             ctx.fillStyle = colors.success;
-            ctx.fillText(`${getWord("height")}: ${calcResult.height.toFixed(1)}`, centerX + 10, centerY + 20);
+            ctx.fillText(`${getWord("height")}: ${calcResult.height.toFixed(1)}`, centerX + 10, centerY + (state.isMobile ? 15 : 20));
 
           } else {
             // 外接：底辺と高さ（中心→底辺への垂線）
@@ -518,7 +641,7 @@
             const midBX = (x1 + x2) / 2;
             const midBY = (y1 + y2) / 2;
             ctx.fillStyle = colors.accent2;
-            ctx.fillText(`${getWord("base")}: ${calcResult.base.toFixed(1)}`, midBX, midBY + 18);
+            ctx.fillText(`${getWord("base")}: ${calcResult.base.toFixed(1)}`, midBX, midBY + (state.isMobile ? 15 : 18));
 
             // 中心→底辺への垂線（交点計算）
             const m = (y2 - y1) / (x2 - x1);
@@ -544,7 +667,7 @@
             ctx.stroke();
 
             ctx.fillStyle = colors.success;
-            ctx.fillText(`${getWord("height")}: ${calcResult.height.toFixed(1)}`, centerX + 10, centerY + 20);
+            ctx.fillText(`${getWord("height")}: ${calcResult.height.toFixed(1)}`, centerX + 10, centerY + (state.isMobile ? 15 : 20));
           }
         }
       }
@@ -588,15 +711,9 @@
     function updateCanvasSize() {
       if (!canvas || !canvasContainer) return;
       const container = canvasContainer;
-      const size = Math.min(container.clientWidth, container.clientHeight);
-      let width, height;
-      if (state.isMobile) {
-        width = container.clientWidth;
-        height = Math.min(size * 1.2, container.clientHeight);
-      } else {
-        width = size;
-        height = size;
-      }
+      let width = container.clientWidth;
+      let height = container.clientHeight;
+      
       canvas.width = width;
       canvas.height = height;
       drawCanvas();
@@ -754,6 +871,20 @@
 
       updateLayout();
       window.addEventListener("resize", updateLayout);
+      
+      // ダブルタップによるズームを防止
+      document.addEventListener('touchstart', function(event) {
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      }, { passive: false });
+      
+      // ピンチイン・アウトによるズームを防止
+      document.addEventListener('touchmove', function(event) {
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      }, { passive: false });
     }
 
     document.addEventListener("DOMContentLoaded", init);
